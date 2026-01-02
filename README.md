@@ -33,7 +33,7 @@ FROM (
 ) [g]
 ```
 
-Let's go through this piece by piece. Starting from the inside query, the `WHERE` clause will filter to only words with five letters. The `SELECT` statement finds out how many times each letter appears in the word. It uses the common replacement-length method. If you want to know how many times the letter L appears in HELLO, then replace all instances of L with blanks. The length of HELLO is five, and the length of HEO is three. Therefore, there must be two L's in HELLO (five minus three). Moving to the outer query, the `SUM` statements will sum the number of occurrences of each letter in each word.
+Let's go through this piece by piece. Starting from the inside query, the `WHERE` clause will filter to only words with five letters. The `SELECT` statement finds out how many times each letter appears in the word. It uses the common replacement-length method. If you want to know how many times the letter L appears in HELLO, then replace all instances of L with nothing. The length of HELLO is five, and the length of HEO is three. Therefore, there must be two L's in HELLO (five minus three). Moving to the outer query, the `SUM` statements will sum the number of occurrences of each letter in each word.
 
 I transposed the results here, sorted by frequency descending:
 |Letter|Count|

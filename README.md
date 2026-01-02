@@ -116,7 +116,7 @@ This makes `arose` our first guess. For the Jan 2nd, 2026 puzzle, it matched cor
 |unlid|92|
 |...|...|
 
-`Unlit` is our second guess. And our third guess should not contain A, R, O, S, E, U, N, L, I, or T. Unfortunately there are no five-letter words that satisfy those conditions, so you can use `clint` as your second word. It matched on no letters.
+`Unlit` *would be* our second guess, except that there are no words that exclude A, R, O, S, E, U, N, L, I, and T. So, we can instead use `clint` as the second word. It matched on no letters.
 
 |Word|Score|
 |---|---|

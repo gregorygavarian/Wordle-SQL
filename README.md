@@ -33,33 +33,97 @@ FROM (
 
 Let's go through this piece by piece. Starting from the inside query, the `WHERE` clause will filter to only words with five letters. The `SELECT` statement finds out how many times each letter appears in the word. It uses the commong replacement-length method. If you want to know how many times the letter L appears in HELLO, then replace all instances of L with blanks. The length of HELLO is five, and the length of HEO is three. Therefore, there must be two L's in HELLO (five minus three). Moving to the outer query, the `SUM` statements will sum the number of occurrences of each letter in each word.
 
-I transposed the results here:
+I transposed the results here, sorted by frequency descending:
 |Letter|Count|
 |------|-----|
-|A count|8393|
-|B count|2091|
-|C count|2745|
-|D count|2813|
-|E count|7803|
-|F count|1238|
-|G count|1971|
-|H count|2284|
-|I count|5067|
-|J count|376|
-|K count|1743|
-|L count|4247|
-|M count|2494|
-|N count|4044|
-|O count|5219|
-|P count|2299|
-|Q count|139|
-|R count|5145|
-|S count|6537|
-|T count|4189|
-|U count|3361|
+|A count|8,393|
+|E count|7,803|
+|S count|6,537|
+|O count|5,219|
+|R count|5,145|
+|I count|5,067|
+|L count|4,247|
+|T count|4,189|
+|N count|4,044|
+|U count|3,361|
+|D count|2,813|
+|C count|2,745|
+|Y count|2,523|
+|M count|2,494|
+|P count|2,299|
+|H count|2,284|
+|B count|2,091|
+|G count|1,971|
+|K count|1,743|
+|F count|1,238|
+|W count|1,171|
 |V count|878|
-|W count|1171|
-|X count|361|
-|Y count|2523|
 |Z count|474|
+|J count|376|
+|X count|361|
+|Q count|139|
 
+Now that we have our list of letter rankings, we can arbitrarily assign a score to them. Since there are 26 letters, I'll simply say that the highest frequency letter gives a score of 26, the next frequent a score of 25, etc. Our objective now is to find words with no duplicates letters that have the higest score. And since we're doing a breadth-first search, whatever word we search for in our second guess should share no letters with the first guess.
+
+```
+SELECT [Word], 
+			((LEN([Word])-LEN(REPLACE([Word], 'a', '')))*26)+  
+			((LEN([Word])-LEN(REPLACE([Word], 'b', '')))*10)+  
+			((LEN([Word])-LEN(REPLACE([Word], 'c', '')))*15)+  
+			...
+			((LEN([Word])-LEN(REPLACE([Word], 'x', '')))*2)+ 
+			((LEN([Word])-LEN(REPLACE([Word], 'y', '')))*14)+ 
+			((LEN([Word])-LEN(REPLACE([Word], 'z', '')))*4) [Score]
+	  FROM [dbo].[Dictionary]
+	  WHERE LEN([Word]) = 5  
+	  AND	   
+	  LEN([Word])-LEN(REPLACE([Word], 'a', '')) <= 1 AND
+	  LEN([Word])-LEN(REPLACE([Word], 'b', ''))	<= 1 AND
+	  LEN([Word])-LEN(REPLACE([Word], 'c', ''))	<= 1 AND
+	  ...
+	  LEN([Word])-LEN(REPLACE([Word], 'x', ''))	<= 1 AND
+	  LEN([Word])-LEN(REPLACE([Word], 'y', ''))	<= 1 AND
+	  LEN([Word])-LEN(REPLACE([Word], 'z', ''))	<= 1
+	ORDER BY [Score] DESC
+```
+
+The new conditions in the `WHERE` clause state that the frequency of each letter must be no more than one. In the `SELECT` statement, I've multiplied each occurence of a letter by its corresponding score to get a grand total score, and then I ordered the results by the grand total score, highest to lowest.
+
+|Word|Score|
+|---|---|
+|arose|120|
+|oreas|120|
+|seora|120|
+|serai|118|
+|raise|118|
+|solea|118|
+|osela|118|
+|arise|118|
+|aries|118|
+|...|...|
+
+This makes `arose` our first guess. Our second guess should share no letters with arose. So, we can simply change the corresponding `WHERE` clause statements for A, R, O, S, and E from `<= 1` to `= 0`.
+
+|Word|Score|
+|---|---|
+|unlit|95|
+|until|95|
+|clint|93|
+|culti|92|
+|linty|92|
+|unlid|92|
+|...|...|
+
+`Unlit` is our second guess. And our third guess should not contain A, R, O, S, E, U, N, L, I, or T. Unfortunately there are no five-letter words that satisfy those conditions, so you can use `clint` as your second word.
+
+|Word|Score|
+|---|---|
+|dumpy|72|
+|dumby|70|
+|dumky|68|
+|pudgy|68|
+|humpy|67|
+|budgy|66|
+|...|...|
+
+These are all funny words, but I'll go with dumpy.

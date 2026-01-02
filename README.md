@@ -9,7 +9,7 @@ My preferred method is a breadth-first search initially; eliminate as many possi
 
 I obtained the dictionary of English language words from https://github.com/dwyl/english-words?tab=readme-ov-file. I used the words_alpha.txt file since that is only alphabetical words instead of alphanumeric words. "First" and "1st" would be contained in the alphanumeric list, but "1st" would not be in the alphabetical-only list. I loaded the file into SQL to obtain the optimal way to search for the answer.
 
-First, which word should be the first one to search for? I believe it should be the highest use of high-frequency letters. That is, if RSTLNE are the most-commonly used letters (as Wheel of Fortune would have us believe), then our first word should be composed of as many of letters as possible, without duplication. But I don't inherently believe that those are the most used letters, so let's find out which ones are.
+First, which word should be the first one to search for? I believe it should be the ones with the highest use of high-frequency letters. That is, if RSTLNE are the most-commonly used letters (as Wheel of Fortune would have us believe), then our first word should be composed of as many of letters as possible, without duplication. But I don't inherently believe that those are the most used letters, so let's find out which ones are.
 
 ```
 SELECT  SUM([A count]) [A count],
@@ -33,7 +33,7 @@ FROM (
 ) [g]
 ```
 
-Let's go through this piece by piece. Starting from the inside query, the `WHERE` clause will filter to only words with five letters. The `SELECT` statement finds out how many times each letter appears in the word. It uses the commong replacement-length method. If you want to know how many times the letter L appears in HELLO, then replace all instances of L with blanks. The length of HELLO is five, and the length of HEO is three. Therefore, there must be two L's in HELLO (five minus three). Moving to the outer query, the `SUM` statements will sum the number of occurrences of each letter in each word.
+Let's go through this piece by piece. Starting from the inside query, the `WHERE` clause will filter to only words with five letters. The `SELECT` statement finds out how many times each letter appears in the word. It uses the common replacement-length method. If you want to know how many times the letter L appears in HELLO, then replace all instances of L with blanks. The length of HELLO is five, and the length of HEO is three. Therefore, there must be two L's in HELLO (five minus three). Moving to the outer query, the `SUM` statements will sum the number of occurrences of each letter in each word.
 
 I transposed the results here, sorted by frequency descending:
 |Letter|Count|

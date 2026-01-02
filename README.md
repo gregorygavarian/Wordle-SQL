@@ -1,11 +1,13 @@
 # Wordle-SQL
 A nerd's guide to Wordle guess optimization using SQL
 
-Wordle is a fun game. But the way people play it bugs me. They typically try to do it depth-first. E.g., let's say that your first guess is HELLO, and you match the correct position on the H (but not any other letters). Next, you might go with HAPPY, and assume you match on the positions of both the H and A. Then you subsequently guess HALOS, etc.. When you guess HALOS, that's an inefficient search because you've already been shown that the word cannot contain L or O, as shown in the first guess. Similarly, HELLO is an inefficient search. Unless you happen to get lucky and match on both L's, then you've wasted a potential letter on the duplicated L, that could have been taken up by another letter.
+Wordle is a fun game. But the way people play it bugs me. They typically try to do it depth-first. E.g., let's say that your first guess is HELLO, and you match the correct position on the H (but not any other letters). Next, you might go with HAPPY, and assume you match on the positions of both the H and A. Then you subsequently guess HALOS, etc.. When you guess HALOS, that's an inefficient search because you've already been shown that the word cannot contain L or O, as shown in the first guess. Similarly, HELLO is an inefficient search. Unless you happen to get lucky and match on both L's, then you've wasted a potential letter on the duplicated L, that could have been taken up by another letter. 
 
-My preferred method is a breadth-first search; eliminate as many possible letters as you can right from the outset.
+For the purposes of this piece, when I say you matched on the *position* of a letter, it means you guessed the letter correctly. Like if the word is HELLO, and you guessed HAPPY, then you guessed the position of the H. If I say you matched on the *occurrence* of a letter, it means your guess contained a correct letter, just not in the right position, such as if the word is HELLO and you guessed REACH, you will have guessed correctly on the position of the E, but only on the occurrence of the H, since it was in the wrong position.
 
-I obtained the dictionary of English language words from https://github.com/dwyl/english-words?tab=readme-ov-file. I used the words_alpha.txt file since that is only alphabetical words instead of alphanumeric words. "First" and "1st" would be contained in the alphanumeric list, but "1st" would not be in the alphabetical-only list. I loaded the file into SQL to obtain the optimal way to search for the answer. As far as I am concerned, there are two ways to approach this problem; open-loop and closed-loop. An open-loop approach would be to use SQL to generate a list of very good words to search for to narrow down your list of possible letters as much as possible in the fewest number of guesses. The closed-loop (feedback-driven) way would be to make the first guess, feed the resulting position/frequency information back into your SQL query, and then re-run the query to get the next best guess. For now, I will only be focusing on the open-loop approach, but in the future I may update it to include the closed-loop approach.
+My preferred method is a breadth-first search initially; eliminate as many possible letters as you can right from the outset. Then once you have a better understanding of the remaining letters, switch to a depth-first search. The depth-first search, like how a normal human guesses, would take information from previous guesses into account in future guesses.
+
+I obtained the dictionary of English language words from https://github.com/dwyl/english-words?tab=readme-ov-file. I used the words_alpha.txt file since that is only alphabetical words instead of alphanumeric words. "First" and "1st" would be contained in the alphanumeric list, but "1st" would not be in the alphabetical-only list. I loaded the file into SQL to obtain the optimal way to search for the answer.
 
 First, which word should be the first one to search for? I believe it should be the highest use of high-frequency letters. That is, if RSTLNE are the most-commonly used letters (as Wheel of Fortune would have us believe), then our first word should be composed of as many of letters as possible, without duplication. But I don't inherently believe that those are the most used letters, so let's find out which ones are.
 
@@ -102,7 +104,7 @@ The new conditions in the `WHERE` clause state that the frequency of each letter
 |aries|118|
 |...|...|
 
-This makes `arose` our first guess. Our second guess should share no letters with arose. So, we can simply change the corresponding `WHERE` clause statements for A, R, O, S, and E from `<= 1` to `= 0`.
+This makes `arose` our first guess. For the Jan 2nd, 2026 puzzle, it matched correctly on the positions of R and O, and no other letters. Our second guess should share no letters with arose. So, we can simply change the corresponding `WHERE` clause statements for A, R, O, S, and E from `<= 1` to `= 0`.
 
 |Word|Score|
 |---|---|
@@ -114,7 +116,7 @@ This makes `arose` our first guess. Our second guess should share no letters wit
 |unlid|92|
 |...|...|
 
-`Unlit` is our second guess. And our third guess should not contain A, R, O, S, E, U, N, L, I, or T. Unfortunately there are no five-letter words that satisfy those conditions, so you can use `clint` as your second word.
+`Unlit` is our second guess. And our third guess should not contain A, R, O, S, E, U, N, L, I, or T. Unfortunately there are no five-letter words that satisfy those conditions, so you can use `clint` as your second word. It matched on no letters.
 
 |Word|Score|
 |---|---|
@@ -126,4 +128,45 @@ This makes `arose` our first guess. Our second guess should share no letters wit
 |budgy|66|
 |...|...|
 
-These are all funny words, but I'll go with dumpy.
+These are all funny words, but I'll go with dumpy. It matched on the occurrence of a P. There are no letters that exclude those 15, so let's move to a depth-first search. From the information we have so far, we know that:
+
+* The word is not AROSE, CLINT, or DUMPY
+* R, and O are the second and third letters.
+* There is at least one P somewhere in there, and it is not the fourth letter.
+* The letters A, S, E, C, L, I, N, T, D, U, M, and Y do not appear at all.
+
+We can entirely remove the condition that letters have to appear only once. This changes the `WHERE` clause to:
+
+```
+WHERE LEN([Word]) = 5 AND
+		[Word] <> 'arose' AND
+		[Word] <> 'clint' AND
+		[Word] <> 'dumpy' AND
+		SUBSTRING([Word], 2, 2) = 'ro' AND 
+		LEN([Word])-LEN(REPLACE([Word], 'p', '')) >= 1 AND 
+		SUBSTRING([Word], 4, 1) <> 'p' AND
+		LEN([Word])-LEN(REPLACE([Word], 'a', '')) = 0 AND
+		LEN([Word])-LEN(REPLACE([Word], 's', '')) = 0 AND
+		LEN([Word])-LEN(REPLACE([Word], 'e', '')) = 0 AND
+		LEN([Word])-LEN(REPLACE([Word], 'c', '')) = 0 AND
+		LEN([Word])-LEN(REPLACE([Word], 'l', '')) = 0 AND
+		LEN([Word])-LEN(REPLACE([Word], 'i', '')) = 0 AND
+		LEN([Word])-LEN(REPLACE([Word], 'n', '')) = 0 AND
+		LEN([Word])-LEN(REPLACE([Word], 't', '')) = 0 AND
+		LEN([Word])-LEN(REPLACE([Word], 'd', '')) = 0 AND
+		LEN([Word])-LEN(REPLACE([Word], 'u', '')) = 0 AND
+		LEN([Word])-LEN(REPLACE([Word], 'm', '')) = 0 AND
+		LEN([Word])-LEN(REPLACE([Word], 'y', '')) = 0
+```
+
+|Word|Score|
+|---|---|
+|groop|89|
+|proof|87|
+|...|...|
+
+I'm not sure what groop means, so I'll choose proof.
+
+And sure enough, PROOF is the correct answer. I know what you're asking. You're asking, "Greg, what if we had simply stuck with a depth-first search from the beginning? I tried it on today's puzzle, and it took 5 guesses instead of 4. And as we all know, a sample size of one is sufficient evidence that it applies to all cases.
+
+Enjoy!

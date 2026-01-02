@@ -128,7 +128,7 @@ This makes `arose` our first guess. For the Jan 2nd, 2026 puzzle, it matched cor
 |budgy|66|
 |...|...|
 
-These are all funny words, but I'll go with dumpy. It matched on the occurrence of a P. There are no letters that exclude those 15, so let's move to a depth-first search. From the information we have so far, we know that:
+These are all funny words, but I'll go with dumpy. It matched on the occurrence of a P. There are no words that exclude all 15 of those, so let's move to a depth-first search. From the information we have so far, we know that:
 
 * The word is not AROSE, CLINT, or DUMPY
 * R, and O are the second and third letters.

@@ -65,7 +65,7 @@ I transposed the results here, sorted by frequency descending:
 |X count|361|
 |Q count|139|
 
-Now that we have our list of letter rankings, we can arbitrarily assign a score to them. Since there are 26 letters, I'll simply say that the highest frequency letter gives a score of 26, the next frequent a score of 25, etc. Our objective now is to find words with no duplicates letters that have the higest score. And since we're doing a breadth-first search, whatever word we search for in our second guess should share no letters with the first guess.
+Now that we have our list of letter rankings, we can arbitrarily assign a score to them. Since there are 26 letters, I'll simply say that the highest frequency letter gives a score of 26, the next frequent a score of 25, etc. Our objective now is to find words with no duplicates letters that have the highest score. And since we're doing a breadth-first search, whatever word we search for in our second guess should share no letters with the first guess.
 
 ```
 SELECT [Word], 
@@ -89,7 +89,7 @@ SELECT [Word],
 	ORDER BY [Score] DESC
 ```
 
-The new conditions in the `WHERE` clause state that the frequency of each letter must be no more than one. In the `SELECT` statement, I've multiplied each occurence of a letter by its corresponding score to get a grand total score, and then I ordered the results by the grand total score, highest to lowest.
+The new conditions in the `WHERE` clause state that the frequency of each letter must be no more than one. In the `SELECT` statement, I've multiplied each occurrence of a letter by its corresponding score to get a grand total score, and then I ordered the results by the grand total score, highest to lowest.
 
 |Word|Score|
 |---|---|

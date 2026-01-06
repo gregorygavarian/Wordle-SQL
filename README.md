@@ -172,3 +172,5 @@ And sure enough, PROOF is the correct answer. I know what you're asking. You're 
 Enjoy!
 
 Update: In the Jan 3rd puzzle, the occurrences of all five letters were discovered after only the second guess using this method. The letters were ARIST, which could be STAIR or SITAR. I guessed STAIR first, but the correct answer was SITAR. 
+
+Update again: In the Jan 6th puzzle, AROSE, CLINT, and DUMPY revealed that there was an O in the word, but not in the third position, and that the third and fourth letters were MP. There is only a single word that satisfies these conditions, OOMPH.

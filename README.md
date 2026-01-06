@@ -165,7 +165,7 @@ WHERE LEN([Word]) = 5 AND
 |proof|87|
 |...|...|
 
-I’m not sure what groop means (and in any case Wordle would never choose it0 so I’ll go with proof.
+I’m not sure what groop means (and in any case Wordle would never choose it, so I’ll go with proof.
 
 And sure enough, PROOF is the correct answer. I know what you're asking. You're asking, "Greg, what if we had simply stuck with a depth-first search from the beginning? I tried it on today's puzzle, and it took 5 guesses instead of 4. And as we all know, a sample size of one is sufficient evidence that it applies to all cases.
 
